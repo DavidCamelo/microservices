@@ -1,5 +1,6 @@
 package com.example.logic.security;
 
+import com.example.logic.dto.ErrorDTO;
 import com.example.logic.service.AuthorizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -13,6 +14,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Date;
 
 @Component
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
@@ -36,7 +38,12 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                 response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 response.setCharacterEncoding("UTF-8");
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                objectMapper.writeValue(response.getWriter(), ex.getMessage());
+                var errorDTO = ErrorDTO.builder()
+                        .timestamp(new Date())
+                        .message(ex.getMessage())
+                        .error(ex)
+                        .build();
+                objectMapper.writeValue(response.getWriter(), errorDTO);
             }
         } else {
             chain.doFilter(request, response);
