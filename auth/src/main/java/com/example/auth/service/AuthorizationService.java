@@ -11,11 +11,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -29,12 +27,10 @@ public class AuthorizationService {
 
     public LoginDTO login(UserDTO userDTO) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDTO.getEmail(), userDTO.getPassword()));
-        UserDetails userDetails = userDetailsService.loadUserByUsername(userDTO.getEmail());
-        Map<String, Object> extraClaims = new HashMap<>();
-        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
-        extraClaims.put("ROLES", roles);
+        var userDetails = userDetailsService.loadUserByUsername(userDTO.getEmail());
+        var roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).toList();
         return LoginDTO.builder()
-                .token(jwtTokenUtil.generateLoginToken(userDetails.getUsername(), extraClaims))
+                .token(jwtTokenUtil.generateLoginToken(userDetails.getUsername(), Map.of("ROLES", roles)))
                 .build();
     }
 

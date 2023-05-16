@@ -21,7 +21,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        String passwordEncoded = passwordEncoder().encode("Password#");
+        var passwordEncoded = passwordEncoder().encode("Password#");
         return username ->
             switch (username) {
                 case "admin@mail.com" ->
